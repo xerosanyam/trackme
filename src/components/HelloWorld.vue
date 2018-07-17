@@ -8,12 +8,12 @@
         <th>&nbsp;</th>
         <th>Event</th>
         <th>Count</th>
-        <th>Action</th>
+        <th></th>
       </tr>
       <tr :key="key" v-for="(count,key)  in events">
         <td>
           <button class="small" title="Delete this event" @click="deleteEvent(key)">x</button>
-          <button class="small" title="Decrease count" @click="decreaseCount(key)">-</button>
+          <button v-show="count>0" class="small" title="Decrease count" @click="decreaseCount(key)">-</button>
         </td>
         <td>{{key}}</td>
         <td>{{count}}</td>
