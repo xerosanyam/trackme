@@ -1,0 +1,19 @@
+language: node_js
+node_js:
+- '7'
+install:
+- npm install
+script:
+- echo "Deploy!!"
+- npm run build
+branches:
+  only:
+  - master
+deploy:
+  provider: surge
+  project: ./dist/
+  domain: trackme.surge.sh
+  skip_cleanup: true
+notifications:
+  slack:
+    secure: n3CaxQORf8BccDBanzGL6YnY1xkzKM8TW9H6fnUqFGoSUjyNMQtIz4ttUF2w2IyOAD2ocY3GlCk2tTfmRjvjFFavY6O35yxBMIEcFPlhuVVaDX1BXJpk9192AopDMFBtRfkgIqgehFtrJnJ4Dyg8Q37fG0np9s/eD/QmjHNTel+T9TgPelZIdxeOZirE2c/Fg296wj93M5pNXZ0Zc0U3RGcgoCNmmObDAM1EiJCYim4nM22Qbi7qGTqQ7lUx6mawQLV+pjJYLBPQoax+NokJahbD9g+EGoiXY7GfKIqUpUJ7p9B4Cvd7IiEhPhZFGoRH/AnWakJDiejgU2XVMIA5DmcsPuyj9I78iN9iv1Ybh7+KI7o533mQ5mTy1UEn+srjCqMIj2XTTx8BDLHRjBXh2fNGhPz+pY2bzSX9wADQuONtDV8Y2lPVlUbQBZUaBKUslD+K3XE5qO/yC53BAesxWoKg/n+EF8eCyG0JOfAUOeNE5k1JwIiCfGNdCNrQ1R7D11J7i9i5sqaKJrfE92XJHSMWDODCKxrtu7zco/2V7qY9CGknS1Wk1hRr3HKzIe8zuC1sedZa9TK5IEcWxJHYArPpzC+znqrQZkzKAZ6mQzreDKb9rHDVvJD3tvnF5oIPNv+ZnRMk/K15Co0CGopokrvGSFxRjg1X+7LsZ0UqA6U=
