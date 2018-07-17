@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h3>What do you want to track?</h3>
+    <h3>What negativity do you want to track?</h3>
     <input type="text" v-model="newEvent" @keyup.enter="addEvent"/>
     <button type="submit" @click="addEvent">Add</button>
     <table>
