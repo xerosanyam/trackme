@@ -1,8 +1,15 @@
 <template>
   <div>
-    <h3>What negativity do you want to track?</h3>
-    <input type="text" v-model="newEvent" @keyup.enter="addEvent"/>
-    <button type="submit" @click="addEvent">Add</button>
+    <div v-if="step===1">
+      <h3>What do you want to track?</h3>
+      <input type="text" v-model="newEvent" @keyup.enter="goToStep2"/>
+      <button type="submit" @click="goToStep2">Add</button>
+    </div>
+    <div v-else-if="step===2">
+      <h3>Is it good for your health ?</h3>
+      <button type="submit" @click="addEvent(1)">Yes</button>
+      <button type="submit" @click="addEvent(-1)">No</button>
+    </div>
     <table>
       <tr>
         <th>&nbsp;</th>
@@ -10,23 +17,40 @@
         <th>Count</th>
         <th></th>
       </tr>
-      <tr :key="key" v-for="(count,key)  in events">
+      <tr :key="key" v-for="(event,key)  in events">
         <td>
           <button class="small" title="Delete this event" @click="deleteEvent(key)">x</button>
-          <button v-show="count>0" class="small" title="Decrease count" @click="decreaseCount(key)">-</button>
+          <button v-show="event.count>0" class="small" title="Decrease count" @click="decreaseCount(key)">-</button>
         </td>
         <td>{{key}}</td>
-        <td>{{count}}</td>
+        <td>{{event.count}}</td>
         <td>
-          <button title="Increase count" @click="events[key]++">+</button>
+          <button title="Increase count" @click="events[key].count++">+</button>
         </td>
         <td class="emojis">
-          <span v-if="count<2">😀</span>
-          <span v-else-if="count<4">😅</span>
-          <span v-else-if="count<6">😐</span>
-          <span v-else-if="count<8">🤨</span>
-          <span v-else-if="count<10">😠</span>
-          <span v-else>🐖</span>
+          <div v-if="event.type==='positive'">
+            <span v-if="event.count<1">🙄</span>
+            <span v-else-if="event.count<2">🙂</span>
+            <span v-else-if="event.count<4">👌</span>
+            <span v-else-if="event.count<6">😎</span>
+            <span v-else-if="event.count<8">😍</span>
+            <span v-else-if="event.count<10">👏</span>
+            <span v-else-if="event.count<15">😘</span>
+            <span v-else-if="event.count<25">🤗</span>
+            <span v-else-if="event.count<40">🌈</span>
+            <span v-else>🏆🤟💋</span>
+          </div>
+          <div v-else>
+            <span v-if="event.count<2">😀</span>
+            <span v-else-if="event.count<4">😅</span>
+            <span v-else-if="event.count<6">😐</span>
+            <span v-else-if="event.count<8">🤨</span>
+            <span v-else-if="event.count<10">😠</span>
+            <span v-else-if="event.count<15">🐖</span>
+            <span v-else-if="event.count<25">💩</span>
+            <span v-else-if="event.count<40">💀</span>
+            <span v-else>🙏</span>
+          </div>
         </td>
       </tr>
     </table>
@@ -40,7 +64,8 @@ export default {
   data () {
     return {
       newEvent: '',
-      events: {}
+      events: {},
+      step: 1
     }
   },
   mounted () {
@@ -50,12 +75,12 @@ export default {
       vm.events = JSON.parse(a)
     }
     if (Object.keys(vm.events).length === 0) {
-      vm.$set(vm.events, 'Got Angry', 0)
-      vm.$set(vm.events, 'Checked Facebook/Whatsapp', 0)
+      vm.$set(vm.events, 'Drank water', {'type': 'positive', 'count': 0})
+      vm.$set(vm.events, 'Checked Facebook/Whatsapp', {'type': 'negative', 'count': 0})
     }
   },
   methods: {
-    addEvent () {
+    goToStep2 () {
       var vm = this
       if (vm.newEvent === '') {
         alert('Add some description of event first')
@@ -65,8 +90,25 @@ export default {
         alert('Event already exists')
         return
       }
-      vm.$set(vm.events, vm.newEvent, 0)
+      vm.step = 2
+    },
+    addEvent (type) {
+      var vm = this
+      if (vm.newEvent === '') {
+        alert('Add some description of event first')
+        return
+      }
+      if (vm.newEvent in vm.events) {
+        alert('Event already exists')
+        return
+      }
+      if (type === 1) {
+        vm.$set(vm.events, vm.newEvent, {'type': 'positive', 'count': 0})
+      } else {
+        vm.$set(vm.events, vm.newEvent, {'type': 'negative', 'count': 0})
+      }
       vm.newEvent = ''
+      vm.step = 1
     },
     deleteEvent (key) {
       var vm = this
@@ -79,7 +121,7 @@ export default {
       var vm = this
       var a = confirm('Are you sure you want to decrease the count for ' + key + ' ?')
       if (a) {
-        vm.events[key]--
+        vm.events[key].count--
       }
     },
     increaseCount (index) {
@@ -141,6 +183,7 @@ button{
 }
 input{
   font-size: 20px;
+  width:18%;
 }
 .emojis{
   font-size: 24px;
