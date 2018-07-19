@@ -55,7 +55,7 @@
       </tr>
     </table>
     <div class="builtBy">
-      version: 1.2
+      version: 1.2.1
       <br>
       Built by <a href="https://twitter.com/xerosanyam">Sanyam Jain</a>
     </div>
@@ -74,28 +74,33 @@ export default {
   },
   mounted () {
     var vm = this
-    var a = localStorage['events']
-    if (a !== undefined) {
-      vm.events = JSON.parse(a)
-    }
-    if (Object.keys(vm.events).length === 0) {
-      vm.$set(vm.events, 'Drank water', {
-        'type': 'positive',
-        'count': 0
-      })
-      vm.$set(vm.events, 'Checked Facebook/Whatsapp', {
-        'type': 'negative',
-        'count': 0
-      })
-    }
+    vm.loadEvents()
     vm.checkForNewDay()
     document.addEventListener('visibilitychange', vm.visibilityChange)
   },
   methods: {
+    loadEvents () {
+      var vm = this
+      var a = localStorage['events']
+      if (a !== undefined) {
+        vm.events = JSON.parse(a)
+      }
+      if (Object.keys(vm.events).length === 0) {
+        vm.$set(vm.events, 'Drank water', {
+          'type': 'positive',
+          'count': 0
+        })
+        vm.$set(vm.events, 'Checked Facebook/Whatsapp', {
+          'type': 'negative',
+          'count': 0
+        })
+      }
+    },
     visibilityChange () {
       var vm = this
       // on visible
       if (!document.hidden) {
+        vm.loadEvents()
         vm.checkForNewDay()
       }
     },
