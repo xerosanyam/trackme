@@ -25,7 +25,7 @@
         <td>{{key}}</td>
         <td>{{event.count}}</td>
         <td>
-          <button title="Increase count" @click="events[key].count++">+</button>
+          <button title="Increase count" @click="increaseCount(key)">+</button>
         </td>
         <td class="emojis">
           <div v-if="event.type==='positive'">
@@ -54,7 +54,11 @@
         </td>
       </tr>
     </table>
-    <div class="builtBy">Built by <a href="https://twitter.com/xerosanyam">Sanyam Jain</a></div>
+    <div class="builtBy">
+      version: 1.2
+      <br>
+      Built by <a href="https://twitter.com/xerosanyam">Sanyam Jain</a>
+    </div>
   </div>
 </template>
 
@@ -75,11 +79,93 @@ export default {
       vm.events = JSON.parse(a)
     }
     if (Object.keys(vm.events).length === 0) {
-      vm.$set(vm.events, 'Drank water', {'type': 'positive', 'count': 0})
-      vm.$set(vm.events, 'Checked Facebook/Whatsapp', {'type': 'negative', 'count': 0})
+      vm.$set(vm.events, 'Drank water', {
+        'type': 'positive',
+        'count': 0
+      })
+      vm.$set(vm.events, 'Checked Facebook/Whatsapp', {
+        'type': 'negative',
+        'count': 0
+      })
     }
+    vm.checkForNewDay()
+    document.addEventListener('visibilitychange', vm.visibilityChange)
   },
   methods: {
+    visibilityChange () {
+      var vm = this
+      // on visible
+      if (!document.hidden) {
+        vm.checkForNewDay()
+      }
+    },
+    checkForNewDay () {
+      var vm = this
+      var temp1 = localStorage['updated']
+      // If no updated record
+      if (temp1 === undefined) {
+        localStorage['updated'] = new Date().toDateString()
+      } else {
+        var date1 = new Date(temp1)
+        var temp2 = new Date().toDateString()
+        var date2 = new Date(temp2)
+        if (date1 < date2) {
+          // If new Day
+          vm.calculateScore()
+          vm.resetCount()
+          console.log('Needs to Reset Count')
+          localStorage['updated'] = temp2
+          // vm.resetCount()
+        }
+      }
+    },
+    calculateScore () {
+      var vm = this
+      var good = 0
+      var bad = 0
+      var score = 5
+      for (var i in vm.events) {
+        if (vm.events[i].type === 'positive') {
+          good += vm.events[i].count
+        } else {
+          bad += vm.events[i].count
+        }
+      }
+      if (good > 10) {
+        good = 10
+      }
+      if (bad > 10) {
+        bad = 10
+      }
+      score += (0.5 * good - 0.5 * bad)
+      vm.showScore(score)
+      // alert('Score is ' + score)
+      // console.log('good is', good)
+      // console.log('bad is', bad)
+      // console.log('score is', score)
+    },
+    showScore (score) {
+      score = score / 2
+      score = Math.ceil(score)
+      alert(`Yesterday's Score: ` + score + '/5')
+      // if (score >= 9) {
+      //   alert('You are a beautiful human. Stay as you are 😘\n\nScore: ' + score + '/10')
+      // } else if (score >= 7) {
+      //   alert('Almost there!\nHope to see you perform even better today! 🤗\n\nScore: ' + score + '/10')
+      // } else if (score >= 5) {
+      //   alert('Your performance has been okayish. \n\nScore: ' + score + '/10')
+      // } else if (score >= 2) {
+      //   alert('It is great that you are tracking your habits.\nBut you certainly can perform better\n\nScore: ' + score + '/10')
+      // } else {
+      //   alert(`Harming your body isn't good.\nPlease discuss your negative habits with somebody close and try to be more self aware.\n\nScore: ` + score + `/10`)
+      // }
+    },
+    resetCount () {
+      var vm = this
+      for (var i in vm.events) {
+        vm.$set(vm.events[i], 'count', 0)
+      }
+    },
     goToStep2 () {
       var vm = this
       if (vm.newEvent === '') {
@@ -103,9 +189,15 @@ export default {
         return
       }
       if (type === 1) {
-        vm.$set(vm.events, vm.newEvent, {'type': 'positive', 'count': 0})
+        vm.$set(vm.events, vm.newEvent, {
+          'type': 'positive',
+          'count': 0
+        })
       } else {
-        vm.$set(vm.events, vm.newEvent, {'type': 'negative', 'count': 0})
+        vm.$set(vm.events, vm.newEvent, {
+          'type': 'negative',
+          'count': 0
+        })
       }
       vm.newEvent = ''
       vm.step = 1
@@ -122,6 +214,9 @@ export default {
       var a = confirm('Are you sure you want to decrease the count for ' + key + ' ?')
       if (a) {
         vm.events[key].count--
+        if (vm.events[key].count < 0) {
+          vm.events[key].count = 0
+        }
       }
     },
     increaseCount (index) {
@@ -132,8 +227,10 @@ export default {
   watch: {
     events: {
       handler (val) {
+        var vm = this
         console.log(JSON.stringify(val))
         localStorage['events'] = JSON.stringify(val)
+        vm.checkForNewDay()
       },
       deep: true
     }
@@ -143,32 +240,40 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-h1, h2 {
+h1,
+h2 {
   font-weight: normal;
 }
+
 ul {
   list-style-type: none;
   padding: 0;
 }
+
 li {
   display: inline-block;
   margin: 0 10px;
 }
+
 a {
   color: #42b983;
 }
-table{
+
+table {
   width: 60%;
   margin: auto;
-  margin-top:40px;
+  margin-top: 40px;
 }
-button{
+
+button {
   cursor: pointer;
 }
-td{
+
+td {
   padding: 10px;
 }
-button{
+
+button {
   /* background-color: #2979FF; */
   padding: 0.6em 1.7em;
   vertical-align: middle;
@@ -181,19 +286,24 @@ button{
     text-align: center;
     border: none;
 }
-input{
+
+input {
   font-size: 20px;
-  width:18%;
+  width: 18%;
 }
-.emojis{
+
+.emojis {
   font-size: 24px;
 }
-.small{
-  padding:0.2em 1.1em;
+
+.small {
+  padding: 0.2em 1.1em;
 }
-.builtBy{
+
+.builtBy {
   position: fixed;
-  bottom:5px;
+  bottom: 5px;
   font-size: 10px;
+  text-align: left;
 }
 </style>
