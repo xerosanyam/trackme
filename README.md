@@ -1,5 +1,7 @@
 # Track Me
 
+[![Feature Requests](https://img.shields.io/github/issues/xerosanyam/trackme/feature-request.svg?style=flat)](Some TExt)
+
 > A Vue.js project
 
 ## Build Setup
